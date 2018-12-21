@@ -76,7 +76,7 @@ class Struct:
         :param vals: all the names of the possible values is a (listof (listof Str))
         """
         self.id = id
-        self.base_vals = [filter(lambda x: x in primitives, val) for val in vals]
+        self.base_vals = [list(filter(lambda x: x in primitives, val)) for val in vals]
         self.vals = vals
 
 class Item:
@@ -95,9 +95,9 @@ class Item:
         return self.struct_id + ": [" + str(self.sub_struct) + "]"
 
 #struct_id:struct
-struct_list = {val:None for val in primitives}
-struct_list["Posn"] = Struct("Posn", (('Posn', 'Num', 'Nat'), ('Posn', 'Num', 'Nat')))
-struct_list["Dab"] = Struct("Dab", (("Dab", "Dab", "Str"), ("Dab", "Dab", "Str")))
+struct_list = {val: Struct(val, list(list(val))) for val in primitives}
+struct_list["Posn"] = Struct("Posn", (('Num', 'Nat'), ('Num', 'Nat')))
+struct_list["Dab"] = Struct("Dab", (("Dab", "Str"), ("Dab", "Str")))
 
 def generate_struct(struct_name, depth):
     """
@@ -108,7 +108,8 @@ def generate_struct(struct_name, depth):
     :return: a struct.
     """
     if depth == 0:
-        return random.choice(struct_list[struct_name].base_vals)
+        ret = [random.choice(base) for base in struct_list[struct_name].base_vals]
+        return ret
     else:
         ret = []
         for val in struct_list[struct_name].vals:
@@ -120,11 +121,6 @@ def generate_struct(struct_name, depth):
                 ret += [Item(curr_type, generate_struct(curr_type, depth-1))]
         end = Item(struct_name, ret)
         return end
-
-posn = struct_list["Posn"]
-
-test = generate_struct("Posn", 5)
-#print(test)
 
 def print_struct(struct):
     """
@@ -138,10 +134,11 @@ def print_struct(struct):
         return struct
     else:
         #is of type Item, check subtype
-        ret = struct.struct_id + "("
+        ret = "( make-"+struct.struct_id
         for subitem in struct.sub_struct:
-            ret += print_struct(subitem)
-        ret += ")"
+            ret += " " + print_struct(subitem)
+        ret += " )"
         return ret
 
-print(print_struct(test))
+for i in range(10):
+    print(print_struct(generate_struct("Dab", 1)))
