@@ -135,7 +135,6 @@ def print_struct(struct):
     :param struct: an Item
     :return: None
     """
-    #print(type(struct))
     if isinstance(struct, str):
         #assume is a primitive for now
         return funcs[struct]()
