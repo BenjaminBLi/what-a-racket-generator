@@ -1,5 +1,11 @@
 import random, math
-from constants import chars, primitives
+
+#Stuff for primitives
+alphabet = ['#\\'+chr(ord('a')+i) for i in range(26)]
+special_chars = ["#\\newline", "#\\space"]
+digits = ['#\\' + str(i) for i in range(10)]
+
+chars = alphabet + special_chars + digits
 
 """
 This code will be the overall generator for primitive data types in racket:
@@ -33,8 +39,8 @@ def generate_char():
     return random.choice(chars)
 
 
-def generate_string(length=1):
-    return "".join(generate_char() for i in range(length))
+def generate_string(length=5):
+    return '"' + (''.join(generate_char() for i in range(length))) + '"'
 
 
 funcs = {'Bool': generate_bool, 'Num': generate_num, 'Float':generate_float,
@@ -94,10 +100,11 @@ class Item:
     def __str__(self):
         return self.struct_id + ": [" + str(self.sub_struct) + "]"
 
+#Stuff for structs
 #struct_id:struct
+primitives = ('Bool', 'Num', 'Float', 'Char', 'Str', 'Nat', 'empty')
 struct_list = {val: Struct(val, list(list(val))) for val in primitives}
 struct_list["Posn"] = Struct("Posn", (('Num', 'Nat'), ('Num', 'Nat')))
-struct_list["Dab"] = Struct("Dab", (("Dab", "Str"), ("Dab", "Str")))
 
 def generate_struct(struct_name, depth):
     """
@@ -131,7 +138,7 @@ def print_struct(struct):
     #print(type(struct))
     if isinstance(struct, str):
         #assume is a primitive for now
-        return struct
+        return funcs[struct]()
     else:
         #is of type Item, check subtype
         ret = "( make-"+struct.struct_id
@@ -140,5 +147,6 @@ def print_struct(struct):
         ret += " )"
         return ret
 
-for i in range(10):
-    print(print_struct(generate_struct("Dab", 1)))
+#struct_list["binode"] = Struct("binode", (("binode", "Str"), ("binode", "Str")))
+
+#print(print_struct(generate_struct("binode", 3)))
